@@ -4,8 +4,10 @@ import { useEffect, useRef } from "react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Distorted" },
-      { name: "description", content: "." },
+      { title: ":>" },
+      { name: "description", content: ":>" },
+      { property: "og:title", content: ":>" },
+      { property: "og:description", content: ":>" },
     ],
   }),
   component: Index,
