@@ -57,7 +57,7 @@ function Index() {
         autoPlay
         loop
         playsInline
-        className="h-full w-full object-contain"
+        className="h-full w-full object-cover"
       />
     </div>
   );
