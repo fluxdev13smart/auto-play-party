@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Click the link" },
-      { name: "description", content: "Click the link." },
+      { title: "Distorted" },
+      { name: "description", content: "." },
     ],
   }),
   component: Index,
@@ -13,52 +13,51 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    setPlaying(true);
-    v.volume = 1;
-    v.muted = false;
     v.loop = true;
-    // Fire synchronously inside the user gesture
-    const fsEl = v as HTMLVideoElement & {
-      webkitEnterFullscreen?: () => void;
-      webkitRequestFullscreen?: () => Promise<void>;
-    };
-    const fsPromise = fsEl.requestFullscreen?.() ?? fsEl.webkitRequestFullscreen?.();
-    if (fsPromise && typeof fsPromise.catch === "function") fsPromise.catch(() => {});
-    else fsEl.webkitEnterFullscreen?.();
+    v.volume = 1;
 
-    const p = v.play();
-    if (p && typeof p.catch === "function") {
-      p.catch(() => {
+    const tryUnmuted = async () => {
+      v.muted = false;
+      try {
+        await v.play();
+      } catch {
+        // Browser blocked unmuted autoplay — start muted, unmute on first interaction
         v.muted = true;
-        v.play().then(() => {
+        try {
+          await v.play();
+        } catch {
+          /* ignore */
+        }
+        const unmute = () => {
           v.muted = false;
-        }).catch(() => {});
-      });
-    }
-  };
+          v.volume = 1;
+          v.play().catch(() => {});
+          window.removeEventListener("pointerdown", unmute);
+          window.removeEventListener("keydown", unmute);
+          window.removeEventListener("touchstart", unmute);
+        };
+        window.addEventListener("pointerdown", unmute);
+        window.addEventListener("keydown", unmute);
+        window.addEventListener("touchstart", unmute);
+      }
+    };
+
+    tryUnmuted();
+  }, []);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <a
-        href="#"
-        onClick={handleClick}
-        className={`text-2xl font-medium text-primary underline underline-offset-4 hover:opacity-80 ${playing ? "hidden" : ""}`}
-      >
-        click here
-      </a>
+    <div className="fixed inset-0 bg-black">
       <video
         ref={videoRef}
         src="/distorted-cena.mp4"
+        autoPlay
         loop
         playsInline
-        preload="auto"
-        className={`bg-black ${playing ? "h-screen w-screen object-contain" : "hidden"}`}
+        className="h-full w-full object-contain"
       />
     </div>
   );
