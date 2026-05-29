@@ -30,7 +30,10 @@ function Index() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black flex items-center justify-center">
+    <div
+      className="fixed inset-0 bg-black flex items-center justify-center"
+      onContextMenu={(e) => e.preventDefault()}
+    >
       {!started && (
         <button
           onClick={handleClick}
