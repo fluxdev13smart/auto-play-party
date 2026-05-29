@@ -34,7 +34,7 @@ function Index() {
       {!started && (
         <button
           onClick={handleClick}
-          className="px-8 py-4 text-lg font-medium text-black rounded-md transition bg-black"
+          className="px-8 py-4 text-lg font-medium text-black bg-white rounded-md hover:bg-neutral-200 transition"
         >
           click here
         </button>
